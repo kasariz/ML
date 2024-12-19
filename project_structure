@@ -1,0 +1,7 @@
+ml_website/
+├── static/
+│   └── style.css
+├── templates/
+│   └── index.html
+├── app.py
+└── requirements.txt 

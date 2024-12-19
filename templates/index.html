@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Прогноз заказов такси</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Прогноз количества заказов такси</h1>
+        <div class="input-section">
+            <input 
+                type="datetime-local" 
+                id="datetimeInput" 
+                class="datetime-input"
+            >
+            <button onclick="getPrediction()">Получить прогноз</button>
+        </div>
+        <div id="result" class="result-section" style="display: none;"></div>
+    </div>
+
+    <script>
+        async function getPrediction() {
+            const datetimeInput = document.getElementById('datetimeInput');
+            const resultDiv = document.getElementById('result');
+            
+            if (!datetimeInput.value) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `<p class="error">Пожалуйста, выберите дату и время</p>`;
+                return;
+            }
+            
+            try {
+                const response = await fetch('/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ 
+                        datetime: datetimeInput.value 
+                    })
+                });
+                
+                const data = await response.json();
+                
+                resultDiv.style.display = 'block';
+                if (data.success) {
+                    resultDiv.innerHTML = `
+                        <h3>Результат прогноза</h3>
+                        <p>Дата и время: ${new Date(data.prediction.datetime).toLocaleString()}</p>
+                        <p>Ожидаемое количество заказов: ${data.prediction.predicted_orders}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p class="error">Ошибка: ${data.error}</p>`;
+                }
+            } catch (error) {
+                resultDiv.style.display = 'block';
+                resultDiv.innerHTML = `<p class="error">Ошибка при отправке запроса</p>`;
+            }
+        }
+    </script>
+</body>
+</html> 
+</html> 
